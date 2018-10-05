@@ -1,0 +1,56 @@
+---------------------
+Installation - server
+---------------------
+sudo apt update
+sudo apt install mysql-server
+sudo mysql_secure_installation
+
+root mysql password : xxxxxxxx (8 chars)
+sec_user@% password : xxxxxxxx
+
+/etc/mysql/mysql.conf.d/mysqld.cnf
+bind-address = 0.0.0.0
+
+sudo systemctl restart mysql.service
+
+---------------------
+Installation - python client
+---------------------
+sudo apt install build-essential
+sudo apt install libmysqlclient-dev
+pip install mysqlclient
+pip install bitmex-ws
+
+---------------------
+sudo mysql // login to mysql
+
+SELECT User, Host FROM mysql.user; // list all user and host
+SELECT user,authentication_string,plugin,host FROM mysql.user;
+
+CREATE DATABASE securities_master; // create database name database_name_here
+
+CREATE USER `your_username_here`@`%` IDENTIFIED BY 'your_password_here'; // access from anywhere
+GRANT ALL PRIVILEGES ON securities_master.* TO `your_username_here`@`%`;
+
+# CREATE USER `your_username_here`@`localhost` IDENTIFIED BY 'your_password_here'; // access from localhost only
+# GRANT ALL PRIVILEGES ON securities_master.* TO `your_username_here`@`localhost`;
+
+FLUSH PRIVILEGES;
+
+SHOW DATABASES; // show all database in the system
+
+USE database_name_here; // use database name database_name_here
+SHOW TABLES; // show all tables in the database
+
+DROP DATABASE database_name_here; // remove database name database_name_here
+DROP TABLE exchange; // remove table name exchange
+DROP USER `your_username_here`@`%`; // remove `your_username_here`@`%`
+
+SELECT * FROM table_name_here; // show all data from table
+
+CREATE TABLE `table_name_here` (
+`id` int NOT NULL AUTO_INCREMENT,
+`datetime` datetime NOT NULL,
+`price` decimal(19,4) NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
