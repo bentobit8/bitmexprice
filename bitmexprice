@@ -1,0 +1,43 @@
+from bitmex_websocket import BitMEXWebsocket
+import datetime as dt
+import time
+import requests
+
+url = 'https://notify-api.line.me/api/notify'
+token = 'line_token_here'
+headers = {'content-type':'application/x-www-form-urlencoded','Authorization':'Bearer '+token}
+
+
+ws = BitMEXWebsocket(endpoint="https://testnet.bitmex.com/api/v1", symbol="XBTUSD", api_key=None, api_secret=None)
+
+"""
+ws.get_instrument()
+ws.get_ticker()
+"""
+while True:
+    dict_instrument = ws.get_instrument()
+    dict_ticker = ws.get_ticker()
+    timestamp = dict_instrument['timestamp']
+    bid = dict_ticker['buy']
+
+    print("timestamp : "+timestamp)
+    print("bid : "+str(bid))
+
+    """
+    for key, value in dict_instrument.items():
+        print("key : "+key+"")
+        print("value : "+str(value)+"\n")
+
+    for key, value in dict_ticker.items():
+        print("key : "+key+"")
+        print("value : "+str(value)+"\n")
+    """
+
+    """ begin Hr announce """
+    now = dt.datetime.now().minute
+    if(now%1 == 0):
+        msg = timestamp + " : " + str(bid)
+        r = requests.post(url, headers=headers , data = {'message':msg})
+        print(r.text)
+
+    time.sleep(60)
