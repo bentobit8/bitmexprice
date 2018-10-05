@@ -1,0 +1,64 @@
+import MySQLdb as mdb
+from bitmex_websocket import BitMEXWebsocket
+from datetime import datetime
+import datetime as dt
+import time
+import requests
+
+
+url = 'https://notify-api.line.me/api/notify'
+token = 'your_line_token_here'
+headers = {'content-type':'application/x-www-form-urlencoded','Authorization':'Bearer '+token}
+
+
+def insert_5min_into_db(dtime, bid_val):
+
+    query = "INSERT INTO bitmexxbtusd (datetime, price) VALUES (%s, %s)"
+    args = dtime, bid_val
+
+    conn = mdb.connect(host="your_host_ip or localhost",
+                    user="mysql_user_name",
+                    password="your_password_here",
+                    db="database_name")
+
+    cur = conn.cursor()
+    cur.execute(query, args)
+    conn.commit()
+
+if __name__ == '__main__':
+
+    ws = BitMEXWebsocket(endpoint="https://testnet.bitmex.com/api/v1", symbol="XBTUSD", api_key=None, api_secret=None)
+
+    """
+    ws.get_instrument()
+    ws.get_ticker()
+    """
+    while True:
+        dict_instrument = ws.get_instrument()
+        dict_ticker = ws.get_ticker()
+        timestamp = datetime.strptime(dict_instrument['timestamp'],'%Y-%m-%dT%H:%M:%S.%fZ')
+        bid = dict_ticker['buy']
+
+        print("timestamp : "+str(timestamp))
+        print("bid : "+str(bid))
+
+        """
+        for key, value in dict_instrument.items():
+            print("key : "+key+"")
+            print("value : "+str(value)+"\n")
+
+        for key, value in dict_ticker.items():
+            print("key : "+key+"")
+            print("value : "+str(value)+"\n")
+        """
+
+        """ begin Hr announce """
+        now = dt.datetime.now().minute
+        if(now%5 == 0):
+            msg = str(timestamp) + " : " + str(bid)
+            r = requests.post(url, headers=headers , data = {'message':msg})
+            print(r.text)
+
+            insert_5min_into_db(timestamp, bid)
+
+        time.sleep(60)
