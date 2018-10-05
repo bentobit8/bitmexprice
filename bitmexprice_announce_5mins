@@ -35,7 +35,7 @@ while True:
 
     """ begin Hr announce """
     now = dt.datetime.now().minute
-    if(now%1 == 0):
+    if(now%5 == 0):
         msg = timestamp + " : " + str(bid)
         r = requests.post(url, headers=headers , data = {'message':msg})
         print(r.text)
